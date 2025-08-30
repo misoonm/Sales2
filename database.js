@@ -545,7 +545,7 @@ class Database {
 }
 
 // إنشاء instance من قاعدة البيانات
-const db = new Database();
+window.db = new Database(); 
 
 // تهيئة قاعدة البيانات عند تحميل الصفحة
 async function initDatabase() {
@@ -610,3 +610,7 @@ async function migrateFromLocalStorage() {
         console.error('خطأ في ترحيل البيانات:', error);
     }
 }
+
+// بدلاً من: const db = new Database();
+// استخدم:
+// جعلها متاحة globally
