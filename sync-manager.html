@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وسيط مزامنة البيانات</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-color: #ffeaa7;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 18px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button.secondary {
+            background-color: #95a5a6;
+        }
+        button.secondary:hover {
+            background-color: #7f8c8d;
+        }
+        button.warning {
+            background-color: #f39c12;
+        }
+        button.warning:hover {
+            background-color: #e67e22;
+        }
+        .log-container {
+            margin-top: 25px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .log-entry {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            background-color: white;
+            border-left: 4px solid #3498db;
+        }
+        .log-entry.error {
+            border-left-color: #e74c3c;
+        }
+        .log-entry.warning {
+            border-left-color: #f39c12;
+        }
+        .log-entry.success {
+            border-left-color: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>وسيط مزامنة البيانات</h1>
+        
+        <div id="status" class="status info">
+            جاهز للبدء. يرجى الضغط على "بدء المزامنة".
+        </div>
+        
+        <div class="controls">
+            <button id="startSync">بدء المزامنة</button>
+            <button id="stopSync" class="secondary">إيقاف المزامنة</button>
+            <button id="forceSync" class="warning">مزامنة فورية</button>
+            <button id="clearData" class="warning">مسح البيانات</button>
+        </div>
+        
+        <div class="log-container">
+            <div class="log-title">سجل الأحداث:</div>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        // وسيط المزامنة بين localStorage و IndexedDB
+        class StorageSync {
+            constructor() {
+                this.isSyncing = false;
+                this.syncInterval = null;
+                this.syncDelay = 2000; // 2 ثانية بين كل مزامنة
+                this.db = null;
+                this.logElement = document.getElementById('log');
+                this.statusElement = document.getElementById('status');
+                
+                // تهيئة IndexedDB
+                this.initDatabase();
+            }
+
+            // تسجيل الرسائل في واجهة المستخدم
+            log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+                this.logElement.appendChild(logEntry);
+                this.logElement.scrollTop = this.logElement.scrollHeight;
+                console.log(`[${type}] ${message}`);
+            }
+
+            // تحديث حالة الواجهة
+            updateStatus(message, type = 'info') {
+                this.statusElement.textContent = message;
+                this.statusElement.className = `status ${type}`;
+            }
+
+            // تهيئة قاعدة البيانات
+            async initDatabase() {
+                try {
+                    // استدعاء دالة initDatabase من ملف database.js
+                    const success = await initDatabase();
+                    if (success) {
+                        this.db = db;
+                        this.log('تم تهيئة قاعدة البيانات بنجاح', 'success');
+                        this.updateStatus('تم تهيئة قاعدة البيانات بنجاح', 'success');
+                        
+                        // محاولة ترحيل البيانات من localStorage إذا كانت موجودة
+                        await migrateFromLocalStorage();
+                    } else {
+                        throw new Error('فشل في تهيئة قاعدة البيانات');
+                    }
+                } catch (error) {
+                    this.log(`خطأ في تهيئة قاعدة البيانات: ${error.message}`, 'error');
+                    this.updateStatus('خطأ في تهيئة قاعدة البيانات', 'error');
+                }
+            }
+
+            // بدء المزامنة التلقائية
+            startSync() {
+                if (this.isSyncing) {
+                    this.log('المزامنة تعمل بالفعل', 'warning');
+                    return;
+                }
+
+                this.isSyncing = true;
+                this.updateStatus('جاري المزامنة...', 'info');
+                this.log('بدء المزامنة التلقائية', 'success');
+
+                // الاستماع لتغييرات localStorage
+                window.addEventListener('storage', this.handleStorageChange.bind(this));
+
+                // أيضا نراقب التغييرات في نفس الصفحة
+                this.overrideLocalStorageMethods();
+
+                // بدء فحص دوري للتغييرات
+                this.syncInterval = setInterval(() => {
+                    this.syncAllStores();
+                }, this.syncDelay);
+            }
+
+            // إيقاف المزامنة التلقائية
+            stopSync() {
+                if (!this.isSyncing) {
+                    this.log('المزامنة غير نشطة', 'warning');
+                    return;
+                }
+
+                this.isSyncing = false;
+                clearInterval(this.syncInterval);
+                this.updateStatus('تم إيقاف المزامنة', 'info');
+                this.log('إيقاف المزامنة التلقائية', 'info');
+            }
+
+            // معالجة تغييرات localStorage
+            handleStorageChange(event) {
+                if (event.key && event.key !== null) {
+                    this.log(`تم اكتشاف تغيير في localStorage للمفتاح: ${event.key}`, 'info');
+                    this.syncStore(event.key);
+                }
+            }
+
+            // تجاوز دوال localStorage لاكتشاف التغييرات من نفس الصفحة
+            overrideLocalStorageMethods() {
+                const originalSetItem = localStorage.setItem;
+                const originalRemoveItem = localStorage.removeItem;
+                const originalClear = localStorage.clear;
+
+                const self = this;
+
+                localStorage.setItem = function(key, value) {
+                    originalSetItem.apply(this, arguments);
+                    if (self.isSyncing) {
+                        self.log(`تم تعديل العنصر في localStorage: ${key}`, 'info');
+                        self.syncStore(key);
+                    }
+                };
+
+                localStorage.removeItem = function(key) {
+                    originalRemoveItem.apply(this, arguments);
+                    if (self.isSyncing) {
+                        self.log(`تم حذف العنصر من localStorage: ${key}`, 'info');
+                        self.syncStore(key);
+                    }
+                };
+
+                localStorage.clear = function() {
+                    originalClear.apply(this, arguments);
+                    if (self.isSyncing) {
+                        self.log('تم مسح كل محتويات localStorage', 'info');
+                        self.syncAllStores();
+                    }
+                };
+            }
+
+            // مزامنة مخزن معين
+            async syncStore(storeKey) {
+                try {
+                    this.log(`مزامنة المخزن: ${storeKey}`, 'info');
+                    
+                    // الحصول على البيانات من localStorage
+                    const dataStr = localStorage.getItem(storeKey);
+                    if (!dataStr) {
+                        // إذا لم توجد بيانات في localStorage، تخطي أو حذف من IndexedDB إذا لزم الأمر
+                        this.log(`لا توجد بيانات في localStorage للمخزن: ${storeKey}`, 'warning');
+                        return;
+                    }
+
+                    const data = JSON.parse(dataStr);
+                    
+                    // حفظ البيانات في IndexedDB
+                    if (Array.isArray(data)) {
+                        // إذا كانت البيانات مصفوفة، نضيف كل عنصر على حدة
+                        for (const item of data) {
+                            await this.db.add(storeKey, item);
+                        }
+                        this.log(`تمت مزامنة ${data.length} عنصرًا إلى ${storeKey}`, 'success');
+                    } else {
+                        // إذا كانت البيانات كائن واحد
+                        await this.db.add(storeKey, data);
+                        this.log(`تمت مزامنة العنصر إلى ${storeKey}`, 'success');
+                    }
+                } catch (error) {
+                    this.log(`خطأ في مزامنة ${storeKey}: ${error.message}`, 'error');
+                }
+            }
+
+            // مزامنة جميع المخازن المعروفة
+            async syncAllStores() {
+                if (!this.isSyncing) return;
+
+                this.log('بدء مزامنة جميع المخازن', 'info');
+                
+                // المخازن المعروفة في التطبيق
+                const knownStores = [
+                    'products', 'sales', 'creditSales', 'paidCreditSales', 
+                    'suppliers', 'purchases', 'employees', 'expenses', 
+                    'settings', 'users', 'returns'
+                ];
+
+                for (const store of knownStores) {
+                    if (localStorage.getItem(store)) {
+                        await this.syncStore(store);
+                    }
+                }
+                
+                this.log('اكتملت مزامنة جميع المخازن', 'success');
+            }
+
+            // مزامنة فورية (يدوي)
+            async forceSync() {
+                this.log('بدء مزامنة فورية...', 'info');
+                await this.syncAllStores();
+                this.log('اكتملت المزامنة الفورية', 'success');
+            }
+
+            // مسح البيانات من كلا المخزنين
+            async clearData() {
+                if (confirm('هل أنت متأكد من أنك تريد مسح جميع البيانات من localStorage و IndexedDB؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                    try {
+                        // مسح localStorage
+                        localStorage.clear();
+                        this.log('تم مسح بيانات localStorage', 'success');
+                        
+                        // مسح IndexedDB
+                        if (this.db && this.db.db) {
+                            const storeNames = this.db.db.objectStoreNames;
+                            const transaction = this.db.db.transaction(Array.from(storeNames), 'readwrite');
+                            
+                            for (const storeName of storeNames) {
+                                const store = transaction.objectStore(storeName);
+                                store.clear();
+                            }
+                            
+                            this.log('تم مسح بيانات IndexedDB', 'success');
+                        }
+                        
+                        this.updateStatus('تم مسح جميع البيانات', 'success');
+                    } catch (error) {
+                        this.log(`خطأ أثناء مسح البيانات: ${error.message}`, 'error');
+                    }
+                }
+            }
+        }
+
+        // تهيئة وسيط المزامنة عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            const syncManager = new StorageSync();
+            
+            // إعداد معالجات الأزرار
+            document.getElementById('startSync').addEventListener('click', () => syncManager.startSync());
+            document.getElementById('stopSync').addEventListener('click', () => syncManager.stopSync());
+            document.getElementById('forceSync').addEventListener('click', () => syncManager.forceSync());
+            document.getElementById('clearData').addEventListener('click', () => syncManager.clearData());
+        });
+    </script>
+</body>
+</html>
