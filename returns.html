@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المرتجعات - نظام إدارة المحلات التجارية</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --primary-light: #7a9ff7;
+            --primary-dark: #2a4b9e;
+            --secondary-color: #1cc88a;
+            --secondary-light: #4adca8;
+            --secondary-dark: #138a5e;
+            --warning-color: #f6c23e;
+            --warning-light: #f9d37a;
+            --warning-dark: #c99a1a;
+            --danger-color: #e74a3b;
+            --danger-light: #ef7e73;
+            --danger-dark: #b21f15;
+            --dark-color: #5a5c69;
+            --light-color: #f8f9fc;
+            --gray-100: #f8f9fc;
+            --gray-200: #eaecf4;
+            --gray-300: #dddfeb;
+            --gray-400: #d1d3e2;
+            --gray-500: #b7b9cc;
+            --gray-600: #858796;
+            --gray-700: #6e707e;
+            --gray-800: #5a5c69;
+            --gray-900: #3a3b45;
+            --transition: all 0.3s ease;
+            --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --shadow-hover: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+            --radius: 0.75rem;
+            --navbar-height: 70px;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #4e73df;
+            --primary-light: #7a9ff7;
+            --primary-dark: #2a4b9e;
+            --secondary-color: #1cc88a;
+            --secondary-light: #4adca8;
+            --secondary-dark: #138a5e;
+            --warning-color: #f6c23e;
+            --warning-light: #f9d37a;
+            --warning-dark: #c99a1a;
+            --danger-color: #e74a3b;
+            --danger-light: #ef7e73;
+            --danger-dark: #b21f15;
+            --dark-color: #d1d3e2;
+            --light-color: #2a2b3d;
+            --gray-100: #2a2b3d;
+            --gray-200: #353646;
+            --gray-300: #3f4051;
+            --gray-400: #4a4b5c;
+            --gray-500: #5a5c69;
+            --gray-600: #858796;
+            --gray-700: #b7b9cc;
+            --gray-800: #d1d3e2;
+            --gray-900: #eaecf4;
+        }
+
+        body {
+            font-family: 'Cairo', 'Tahoma', sans-serif;
+            background-color: var(--light-color);
+            color: var(--gray-900);
+            transition: var(--transition);
+            padding-top: var(--navbar-height);
+            min-height: 100vh;
+        }
+
+        .navbar-top {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            height: var(--navbar-height);
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            transition: var(--transition);
+        }
+
+        .navbar-top .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .navbar-bottom {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: var(--gray-100);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1020;
+            border-top: 1px solid var(--gray-300);
+            transition: var(--transition);
+        }
+
+        .nav-item-bottom {
+            text-align: center;
+            padding: 12px 0;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            color: var(--gray-600);
+            text-decoration: none;
+        }
+
+        .nav-item-bottom:hover, .nav-item-bottom.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item-bottom.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            transform: translateX(50%);
+            width: 70%;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 0 0 3px 3px;
+        }
+
+        .nav-item-bottom i {
+            font-size: 1.25rem;
+            display: block;
+            margin: 0 auto 5px;
+            transition: var(--transition);
+        }
+
+        .nav-item-bottom span {
+            font-size: 0.75rem;
+            display: block;
+        }
+
+        .card {
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            transition: var(--transition);
+            border: none;
+            background-color: var(--gray-100);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: var(--radius) var(--radius) 0 0 !important;
+        }
+
+        .btn {
+            border-radius: var(--radius);
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-left: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(78, 115, 223, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(to right, var(--secondary-color), var(--secondary-light));
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(to right, var(--secondary-dark), var(--secondary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(28, 200, 138, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, var(--danger-color), var(--danger-light));
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(to right, var(--danger-dark), var(--danger-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(231, 74, 59, 0.3);
+        }
+
+        .table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .badge-return {
+            background-color: var(--warning-color);
+            color: var(--gray-900);
+        }
+
+        .badge-refund {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .badge-exchange {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .return-item {
+            border-left: 4px solid var(--warning-color);
+            background-color: var(--gray-100);
+        }
+
+        .refund-item {
+            border-left: 4px solid var(--secondary-color);
+            background-color: var(--gray-100);
+        }
+
+        .exchange-item {
+            border-left: 4px solid var(--primary-color);
+            background-color: var(--gray-100);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar-top">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-4">
+                    <span id="store-name">متجري</span>
+                </div>
+                <div class="col-4 text-center">
+                    <span id="current-date"></span>
+                </div>
+                <div class="col-4 text-end">
+                    <span id="user-name">مرحباً، مدير النظام</span>
+                    <button class="btn btn-outline-light btn-sm ms-2" id="logout-btn">
+                        <i class="bi bi-box-arrow-right"></i> تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <h2 class="mb-4">إدارة المرتجعات</h2>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-white">بحث عن فاتورة</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="أدخل رقم الفاتورة..." id="invoice-search">
+                                    <button class="btn btn-primary" type="button" id="search-invoice-btn">
+                                        <i class="bi bi-search"></i> بحث
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="invoice-details" class="mt-3" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold">تفاصيل الفاتورة</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="invoice-info"></div>
+                                    <div id="invoice-items" class="mt-3"></div>
+                                    
+                                    <div class="mt-3">
+                                        <button class="btn btn-warning" id="create-return-btn">
+                                            <i class="bi bi-arrow-return-left"></i> إنشاء مرتجع
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-white">سجل المرتجعات</h6>
+                        <div>
+                            <input type="date" id="start-date" class="form-control form-control-sm d-inline-block w-auto">
+                            <span>إلى</span>
+                            <input type="date" id="end-date" class="form-control form-control-sm d-inline-block w-auto">
+                            <button class="btn btn-sm btn-outline-light ms-2" id="filter-btn">
+                                <i class="bi bi-filter"></i> تصفية
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>رقم المرتجع</th>
+                                        <th>رقم الفاتورة</th>
+                                        <th>التاريخ</th>
+                                        <th>نوع المرتجع</th>
+                                        <th>المبلغ</th>
+                                        <th>العميل</th>
+                                        <th>الحالة</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="returns-table-body">
+                                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نموذج إنشاء مرتجع -->
+    <div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إنشاء مرتجع</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="return-form">
+                        <input type="hidden" id="return-invoice-number">
+                        <input type="hidden" id="return-invoice-type">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">نوع المرتجع</label>
+                                    <select class="form-select" id="return-type" required>
+                                        <option value="">اختر النوع</option>
+                                        <option value="return">مرتجع كامل</option>
+                                        <option value="refund">استرجاع نقدي</option>
+                                        <option value="exchange">استبدال</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">طريقة الاسترجاع</label>
+                                    <select class="form-select" id="refund-method">
+                                        <option value="نقدي">نقدي</option>
+                                        <option value="بطاقة">بطاقة</option>
+                                        <option value="تحويل">تحويل</option>
+                                        <option value="رصيد">رصيد للعميل</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">المنتجات المرتجعة</label>
+                            <div id="return-products-list" class="border p-3">
+                                <!-- سيتم ملؤها بواسطة JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">المبلغ المرتجع</label>
+                                    <input type="number" class="form-control" id="return-amount" required step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">سبب المرتجع</label>
+                                    <textarea class="form-control" id="return-reason" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="submit-return-btn">حفظ المرتجع</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col-2 nav-item-bottom" onclick="window.location.href='dashboard.html'">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>لوحة التحكم</span>
+                </div>
+                <div class="col-2 nav-item-bottom" onclick="window.location.href='products.html'">
+                    <i class="bi bi-box-seam"></i>
+                    <span>المنتجات</span>
+                </div>
+                <div class="col-2 nav-item-bottom" onclick="window.location.href='pos.html'">
+                    <i class="bi bi-cash-coin"></i>
+                    <span>نقطة البيع</span>
+                </div>
+                <div class="col-2 nav-item-bottom" onclick="window.location.href='reports.html'">
+                    <i class="bi bi-graph-up"></i>
+                    <span>التقارير</span>
+                </div>
+                <div class="col-2 nav-item-bottom" onclick="window.location.href='returns.html'">
+                    <i class="bi bi-arrow-return-left"></i>
+                    <span>المرتجعات</span>
+                </div>
+                <div class="col-2 nav-item-bottom" onclick="window.location.href='credit.html'">
+                    <i class="bi bi-credit-card"></i>
+                    <span>آجل</span>
+                </div>      
+            </div>
+        </div>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // تهيئة قاعدة البيانات
+        let db;
+        
+        async function initDatabase() {
+            try {
+                if (typeof Database !== 'undefined') {
+                    db = new Database();
+                    await db.open();
+                    console.log('تم الاتصال بقاعدة البيانات بنجاح');
+                    return true;
+                } else {
+                    console.error('لم يتم العثور على كائن قاعدة البيانات');
+                    return false;
+                }
+            } catch (error) {
+                console.error('خطأ في الاتصال بقاعدة البيانات:', error);
+                return false;
+            }
+        }
+
+        // التحقق من تسجيل الدخول
+        async function checkAuth() {
+            const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(currentUser);
+        }
+
+        // تهيئة التاريخ والوقت
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('ar-YE', options);
+            
+            // تعيين التواريخ الافتراضية للتصفية
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            
+            document.getElementById('start-date').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('end-date').value = lastDay.toISOString().split('T')[0];
+        }
+
+        // تسجيل الخروج
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        });
+
+        // البحث عن فاتورة
+        document.getElementById('search-invoice-btn').addEventListener('click', async function() {
+            const invoiceNumber = document.getElementById('invoice-search').value.trim();
+            if (!invoiceNumber) {
+                alert('يرجى إدخال رقم الفاتورة');
+                return;
+            }
+
+            try {
+                const sale = await db.getSaleByInvoiceNumber(invoiceNumber);
+                if (!sale) {
+                    alert('لم يتم العثور على فاتورة بهذا الرقم');
+                    return;
+                }
+
+                displayInvoiceDetails(sale);
+            } catch (error) {
+                console.error('خطأ في البحث عن الفاتورة:', error);
+                alert('حدث خطأ أثناء البحث عن الفاتورة');
+            }
+        });
+
+        // عرض تفاصيل الفاتورة
+        function displayInvoiceDetails(sale) {
+            const invoiceInfo = document.getElementById('invoice-info');
+            const invoiceItems = document.getElementById('invoice-items');
+            
+            invoiceInfo.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong>رقم الفاتورة:</strong> ${sale.invoiceNumber}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>التاريخ:</strong> ${sale.date}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>الإجمالي:</strong> ${sale.total.toLocaleString()} ريال
+                    </div>
+                    <div class="col-md-4">
+                        <strong>طريقة الدفع:</strong> ${sale.paymentMethod}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>العميل:</strong> ${sale.customerName || 'غير محدد'}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>نوع الفاتورة:</strong> ${sale.type === 'sale' ? 'بيع عادي' : sale.type === 'creditSale' ? 'بيع آجل' : 'بيع آجل مسدد'}
+                    </div>
+                </div>
+            `;
+
+            invoiceItems.innerHTML = `
+                <h6>المنتجات:</h6>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>اسم المنتج</th>
+                            <th>الكمية</th>
+                            <th>السعر</th>
+                            <th>الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sale.items.map(item => `
+                            <tr>
+                                <td>${item.name}</td>
+                                <td>${item.quantity}</td>
+                                <td>${item.price.toLocaleString()} ريال</td>
+                                <td>${(item.quantity * item.price).toLocaleString()} ريال</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('invoice-details').style.display = 'block';
+            document.getElementById('return-invoice-number').value = sale.invoiceNumber;
+            document.getElementById('return-invoice-type').value = sale.type;
+        }
+
+        // إنشاء مرتجع
+        document.getElementById('create-return-btn').addEventListener('click', function() {
+            const invoiceNumber = document.getElementById('return-invoice-number').value;
+            if (!invoiceNumber) {
+                alert('يرجى البحث عن فاتورة أولاً');
+                return;
+            }
+
+            // هنا يمكن إضافة منطق لاختيار المنتجات المرتجعة
+            const returnProductsList = document.getElementById('return-products-list');
+            returnProductsList.innerHTML = `
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="all" id="select-all">
+                    <label class="form-check-label" for="select-all">
+                        تحديد كل المنتجات
+                    </label>
+                </div>
+                <hr>
+                <p class="text-muted">سيتم إرجاع جميع المنتجات (يمكن التخصيص في المستقبل)</p>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('returnModal'));
+            modal.show();
+        });
+
+        // تقديم المرتجع
+        document.getElementById('submit-return-btn').addEventListener('click', async function() {
+            const returnType = document.getElementById('return-type').value;
+            const refundMethod = document.getElementById('refund-method').value;
+            const returnAmount = parseFloat(document.getElementById('return-amount').value);
+            const returnReason = document.getElementById('return-reason').value;
+            const invoiceNumber = document.getElementById('return-invoice-number').value;
+            const invoiceType = document.getElementById('return-invoice-type').value;
+
+            if (!returnType || !returnAmount) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            try {
+                const sale = await db.getSaleByInvoiceNumber(invoiceNumber);
+                if (!sale) {
+                    alert('لم يتم العثور على الفاتورة');
+                    return;
+                }
+
+                // إنشاء سجل المرتجع
+                const returnData = {
+                    invoiceNumber: invoiceNumber,
+                    originalSaleType: invoiceType,
+                    date: new Date().toISOString().split('T')[0],
+                    type: returnType,
+                    amount: returnAmount,
+                    refundMethod: refundMethod,
+                    reason: returnReason,
+                    customerName: sale.customerName,
+                    items: sale.items, // يمكن تعديل هذا ليكون المنتجات المحددة فقط
+                    status: 'مكتمل',
+                    employee: document.getElementById('user-name').textContent.replace('مرحباً، ', '')
+                };
+
+                await db.addReturn(returnData);
+
+                // تحديث المخزون (إضافة الكمية المرتجعة)
+                for (const item of sale.items) {
+                    const product = await db.get('products', item.productId);
+                    if (product) {
+                        product.quantity += item.quantity;
+                        await db.update('products', product);
+                    }
+                }
+
+                alert('تم حفظ المرتجع بنجاح');
+                bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
+                loadReturns();
+                
+            } catch (error) {
+                console.error('خطأ في حفظ المرتجع:', error);
+                alert('حدث خطأ أثناء حفظ المرتجع');
+            }
+        });
+
+        // تحميل سجل المرتجعات
+        async function loadReturns() {
+            try {
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                
+                let returns;
+                if (startDate && endDate) {
+                    returns = await db.getReturnsByDateRange(startDate, endDate);
+                } else {
+                    returns = await db.getReturns();
+                }
+
+                const tableBody = document.getElementById('returns-table-body');
+                tableBody.innerHTML = '';
+
+                if (!returns || returns.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">لا توجد مرتجعات</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                returns.forEach(returnItem => {
+                    const badgeClass = returnItem.type === 'return' ? 'badge-return' : 
+                                     returnItem.type === 'refund' ? 'badge-refund' : 'badge-exchange';
+                    
+                    const typeText = returnItem.type === 'return' ? 'مرتجع كامل' : 
+                                   returnItem.type === 'refund' ? 'استرجاع نقدي' : 'استبدال';
+
+                    const row = document.createElement('tr');
+                    row.className = returnItem.type === 'return' ? 'return-item' : 
+                                  returnItem.type === 'refund' ? 'refund-item' : 'exchange-item';
+                    
+                    row.innerHTML = `
+                        <td>${returnItem.id}</td>
+                        <td>${returnItem.invoiceNumber}</td>
+                        <td>${returnItem.date}</td>
+                        <td><span class="badge ${badgeClass}">${typeText}</span></td>
+                        <td>${returnItem.amount.toLocaleString()} ريال</td>
+                        <td>${returnItem.customerName || 'غير محدد'}</td>
+                        <td><span class="badge bg-success">${returnItem.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info view-return-btn" data-id="${returnItem.id}">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-return-btn" data-id="${returnItem.id}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+
+                // إضافة معالجات الأحداث للأزرار
+                document.querySelectorAll('.view-return-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const returnId = this.getAttribute('data-id');
+                        viewReturnDetails(returnId);
+                    });
+                });
+
+                document.querySelectorAll('.delete-return-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const returnId = this.getAttribute('data-id');
+                        deleteReturn(returnId);
+                    });
+                });
+
+            } catch (error) {
+                console.error('خطأ في تحميل المرتجعات:', error);
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-danger">خطأ في تحميل البيانات</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // تصفية المرتجعات
+        document.getElementById('filter-btn').addEventListener('click', function() {
+            loadReturns();
+        });
+
+        // عرض تفاصيل المرتجع
+        async function viewReturnDetails(returnId) {
+            try {
+                const returnItem = await db.getReturn(returnId);
+                if (!returnItem) {
+                    alert('لم يتم العثور على المرتجع');
+                    return;
+                }
+
+                alert(`
+تفاصيل المرتجع:
+رقم المرتجع: ${returnItem.id}
+رقم الفاتورة: ${returnItem.invoiceNumber}
+التاريخ: ${returnItem.date}
+النوع: ${returnItem.type === 'return' ? 'مرتجع كامل' : returnItem.type === 'refund' ? 'استرجاع نقدي' : 'استبدال'}
+المبلغ: ${returnItem.amount.toLocaleString()} ريال
+العميل: ${returnItem.customerName || 'غير محدد'}
+السبب: ${returnItem.reason || 'غير محدد'}
+                `);
+            } catch (error) {
+                console.error('خطأ في عرض التفاصيل:', error);
+                alert('حدث خطأ أثناء عرض التفاصيل');
+            }
+        }
+
+        // حذف المرتجع
+        async function deleteReturn(returnId) {
+            if (!confirm('هل أنت متأكد من حذف هذا المرتجع؟')) {
+                return;
+            }
+
+            try {
+                await db.deleteReturn(returnId);
+                alert('تم حذف المرتجع بنجاح');
+                loadReturns();
+            } catch (error) {
+                console.error('خطأ في حذف المرتجع:', error);
+                alert('حدث خطأ أثناء حذف المرتجع');
+            }
+        }
+
+        // تحميل البيانات عند فتح الصفحة
+        document.addEventListener('DOMContentLoaded', async function() {
+            const user = await checkAuth();
+            if (!user) return;
+            
+            document.getElementById('user-name').textContent = `مرحباً، ${user.name}`;
+            
+            const dbInitialized = await initDatabase();
+            if (!dbInitialized) {
+                alert('خطأ في الاتصال بقاعدة البيانات');
+                return;
+            }
+
+            // تحميل إعدادات المتجر
+            try {
+                const settings = await db.getSettings();
+                document.getElementById('store-name').textContent = settings.storeName;
+            } catch (error) {
+                console.error('خطأ في تحميل الإعدادات:', error);
+            }
+
+            // تحميل المرتجعات
+            await loadReturns();
+            updateDateTime();
+        });
+    </script>
+</body>
+</html>
